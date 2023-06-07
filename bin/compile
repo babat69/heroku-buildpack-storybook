@@ -11,6 +11,9 @@ echo "Downloading and installing node"
 node_url=" https://nodejs.org/dist/v18.12.1/node-v18.12.1.tar.gz"
 curl $node_url -s -o - | tar xzf - -C $BUILD_DIR
 
+chmod +x $build_dir/node/bin/*
+PATH=$BUILD_DIR/node/bin:$PATH
+
 npm ci
 
 if [ -f "static.json" ]
