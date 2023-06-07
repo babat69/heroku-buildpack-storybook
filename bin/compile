@@ -6,6 +6,17 @@ ENV_DIR=$3
 BP_DIR=`cd $(dirname $0); cd ..; pwd`
 
 cd $BUILD_DIR
+# Look in package.json's engines.node field for a semver range
+semver_range=$(cat $BUILD_DIR/package.json | $bp_dir/vendor/jq -r .engines.node)
+
+# Resolve node version using semver.io
+node_version=$(curl --silent --get --data-urlencode "range=${semver_range}" https://semver.io/node/resolve)
+# Download node from Heroku's S3 mirror of nodejs.org/dist
+status "Downloading and installing node"
+node_url="http://s3pository.heroku.com/node/v$node_version/node-v$node_version-linux-x64.tar.gz"
+curl $node_url -s -o - | tar xzf - -C $BUILD_DIR
+
+npm ci
 
 if [ -f "static.json" ]
 then
